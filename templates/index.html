@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Prediction</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="container mt-4">
+    <h1 class="text-center">Trading Prediction</h1>
+    <form method="post" class="form-group">
+        <label for="stock_symbol">Ingresa Código de Acción</label>
+        <input type="text" id="stock_symbol" name="stock_symbol" class="form-control" required>
+        <button type="submit" class="btn btn-primary mt-2">Predecir</button>
+    </form>
+
+    {% if prediction %}
+        <div class="alert alert-info mt-4">
+            <p><strong>Precio Actual:</strong> {{ current_price }}</p>
+            <p><strong>Precio Predicho:</strong> {{ predicted_price }}</p>
+            <p><strong>Recomendación:</strong> {{ prediction }}</p>
+        </div>
+    {% endif %}
+
+    <canvas id="priceChart" class="mt-4"></canvas>
+    <script>
+        const ctx = document.getElementById('priceChart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: {{ timestamps | tojson }},
+                datasets: [{
+                    label: 'Precio de Cierre',
+                    data: {{ closing_prices | tojson }},
+                    borderColor: 'blue',
+                    backgroundColor: 'rgba(0, 123, 255, 0.5)',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: true }
+                },
+                scales: {
+                    x: { title: { display: true, text: 'Tiempo' } },
+                    y: { title: { display: true, text: 'Precio ($)' } }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -18,12 +18,21 @@ def index():
         stock_symbol = request.form['stock_symbol']
         
         # Obtener datos históricos y procesarlos
-        response = fetch_real_time_data(stock_symbol)
-        if response:
-            timestamps, closing_prices = process_stock_data(response)
-            current_price = closing_prices[-1]  # Último precio de cierre
-            predicted_price = predict_with_regression(timestamps, closing_prices)  # Predicción basada en regresión
-            prediction = 'Buy' if predicted_price > current_price else 'Sell'
+        response = fetch_real_time_data(stock_symbol)    
+        print("Information" in response)    
+        print(type(response))
+        if "Information" in response:
+            error = "API rate limit per day"
+            timestamps, closing_prices, current_price, predicted_price, prediction = error, error, 0, 0, "Waiting"
+            print("error api")
+        
+        else:
+            if response:
+                print("entro al if")
+                timestamps, closing_prices = process_stock_data(response)
+                current_price = closing_prices[-1]  # Último precio de cierre
+                predicted_price = predict_with_regression(timestamps, closing_prices)  # Predicción basada en regresión
+                prediction = 'Buy' if predicted_price > current_price else 'Sell'
 
     return render_template(
         'index.html',
@@ -33,7 +42,7 @@ def index():
         timestamps=timestamps,
         closing_prices=closing_prices
     )
-
+    
 def fetch_real_time_data(stock_symbol):
     url = f'https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol={stock_symbol}&interval=5min&apikey=RB4FK71JRVS10X15'
     try:

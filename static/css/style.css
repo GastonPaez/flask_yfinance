@@ -1,19 +1,22 @@
 @import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&display=swap');
 body {
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
     background: #08131f;
     font-family: 'Lato', sans-serif;
     display: flex;
     justify-content: center;
-    align-items: center;
-    height: 100vh;
+    align-items: center;    
 }
 
 .container {
-    width: 100vh;
-    height: auto;
+    width: 100%;
+    max-width: 800px; /* o el ancho máximo que quieras para desktop */
     background: #1c253f;
     border-radius: 40px;
-    margin-top: 10px;
+    margin: 20px auto;
+    padding: 20px;
 }
 
 i.nav-icon {
@@ -47,7 +50,7 @@ span.sub-heading {
 
 
 
-div.menu {
+div.menu {    
     background: #162037;
     color: #585F8B;
     border-radius: 10px;
@@ -147,7 +150,11 @@ div.bar-2 {
     background: #2a3350;
     border-radius: 5px;
 }
-
+.chart-canvas {
+    width: 100%;
+    max-width: 100%;
+    height: 100px; /* o el alto que desees */
+}
 span.chart-label {
     font-size: 10px;
     font-weight: 900;
@@ -170,4 +177,38 @@ div.chart-bg {
     letter-spacing: 1px;
     background: #162037;
     border-radius: 10px;
+}
+
+p {
+    margin-bottom: 0px;
+}
+
+@media (max-width: 768px) {
+    .container {
+        border-radius: 20px;
+        padding: 15px;
+    }
+
+    span.heading {
+        font-size: 1.5em;
+    }
+
+    .menu {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .menu input,
+    .menu button {
+        width: 100%;
+    }
+
+    .filter-button {
+        font-size: 0.8em;
+        padding: 8px 12px;
+    }
+
+    .chart-bg {
+        padding: 10px;
+    }
 }

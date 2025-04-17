@@ -19,17 +19,17 @@ def index():
     stock_symbol = None
 
     if request.method == "POST":
-        stock_symbol = request.form['stock_symbol'].upper()  # Captura el código de acción
+        stock_symbol = request.form['stock_symbol'].upper()  
 
         # Obtiene los datos del mercado
         response = fetch_real_time_data(stock_symbol)
 
         if response is not None:
-            print("Procesando datos...")
+            print("Comienza el procesamiento de datos")
             timestamps, closing_prices = process_stock_data(response)
             if closing_prices:
                 current_price = closing_prices[-1]
-                # Calcula todos los algoritmos al buscar
+                # Calcula los algoritmos de prediccion
                 prediction_lineal = predict_with_regression(timestamps, closing_prices)
                 prediction_polynomial = predict_with_polynomial_regression(timestamps, closing_prices)
                 prediction_forest = predict_with_forest_regressor(timestamps, closing_prices)
@@ -46,7 +46,10 @@ def index():
         algorithm=algorithm
     )
 
-# Función para obtener datos de yfinance
+#================================================#
+#========== OBTENER DATOS DE YFINANCE ===========#
+#================================================#
+
 def fetch_real_time_data(stock_symbol):
     try:
         stock = yf.Ticker(stock_symbol)
@@ -58,7 +61,10 @@ def fetch_real_time_data(stock_symbol):
         print(f"Error obteniendo datos de {stock_symbol}: {str(e)}")
     return None
 
-# Procesamiento de datos
+#================================================#
+#============ PROCESAMIENTO DE DATOS ============#
+#================================================#
+
 def process_stock_data(data):
     try:
         timestamps = list(data.index.strftime("%Y-%m-%d %H:%M"))[-10:]  # Últimos 10 registros
@@ -67,9 +73,25 @@ def process_stock_data(data):
     except KeyError as e:
         print("Error procesando datos:", e)
         return [], []
+    
+#================================================#
+#=========== ALGORITMOS DE PREDICCION ===========#
+#================================================#
 
-# Funciones de predicción
 def predict_with_regression(timestamps, closing_prices):
+    """ El código toma los precios de cierre de las últimas 10 observaciones y los convierte en dos conjuntos:
+    X: Representa el tiempo como índices numéricos. Por ejemplo, si tienes 10 datos, los índices serán [0, 1, 2, ... 9].
+    y: Son los precios de cierre reales correspondientes a esos momentos de tiempo.
+    
+    Estos datos son los que el modelo utiliza para identificar patrones.
+    
+    Args:
+        timestamps (datetime): fecha y hora
+        closing_prices (float): precio de cierre
+
+    Returns:
+        float: prediccion
+    """
     X = np.array(range(len(timestamps))).reshape(-1, 1)
     y = np.array(closing_prices)
     model = LinearRegression()
@@ -79,6 +101,20 @@ def predict_with_regression(timestamps, closing_prices):
     return predicted_price[0]
 
 def predict_with_polynomial_regression(timestamps, closing_prices):
+    """ El código aplica regresión polinómica para predecir futuros precios de cierre basándose en datos históricos.
+
+    X: Representa el tiempo como índices numéricos y se transforma en un conjunto de características polinómicas.
+    y: Son los precios de cierre reales utilizados para ajustar el modelo polinómico.
+
+    Este método permite capturar relaciones no lineales en los datos, mejorando la precisión en escenarios donde los precios tienen variaciones más complejas.
+
+    Args:
+        timestamps (datetime): fecha y hora
+        closing_prices (float): precios de cierre
+
+    Returns:
+        float: predicción del precio de cierre
+    """ 
     X = np.array(range(len(timestamps))).reshape(-1, 1)
     y = np.array(closing_prices)
     poly = PolynomialFeatures(degree=2)
@@ -91,6 +127,20 @@ def predict_with_polynomial_regression(timestamps, closing_prices):
     return predicted_price[0]
 
 def predict_with_forest_regressor(timestamps, closing_prices):
+    """ El código utiliza un modelo de bosque aleatorio (Random Forest Regressor) para predecir futuros precios de cierre basándose en datos históricos.
+
+    X: Representa el tiempo como índices numéricos y puede incluir características adicionales derivadas de precios anteriores.
+    y: Son los precios de cierre reales que sirven como referencia para el modelo de aprendizaje basado en múltiples árboles de decisión.
+
+    Este enfoque de aprendizaje de conjunto mejora la capacidad de generalización del modelo, capturando patrones complejos en los datos.
+
+    Args:
+        timestamps (datetime): fecha y hora
+        closing_prices (float): precios de cierre
+
+    Returns:
+        float: predicción del precio de cierre
+"""
     X = np.array(range(len(timestamps))).reshape(-1, 1)
     y = np.array(closing_prices)
     model = RandomForestRegressor(n_estimators=100, random_state=42)

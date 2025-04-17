@@ -4,7 +4,7 @@ from app.services.prediction import (
     predict_with_polynomial_regression,
     predict_with_forest_regressor
 )
-from app.utils.data import fetch_real_time_data, process_stock_data
+from app.utils.data import fetch_real_time_data, fetch_monthly_data, process_stock_data
 
 main = Blueprint('main', __name__)
 
@@ -16,24 +16,29 @@ def index():
     current_price = None
     timestamps = []
     closing_prices = []
-    algorithm = "Regresión Lineal"  # Algoritmo predeterminado
+    timestamps_monthly = []
+    closing_prices_monthly = []
+    algorithm = "Regresión Lineal"
     stock_symbol = None
 
     if request.method == "POST":
-        stock_symbol = request.form['stock_symbol'].upper()  
+        stock_symbol = request.form['stock_symbol'].upper()
 
-        # Obtiene los datos del mercado
-        response = fetch_real_time_data(stock_symbol)
-
-        if response is not None:
-            print("Comienza el procesamiento de datos")
-            timestamps, closing_prices = process_stock_data(response)
+        # Datos intradía
+        intraday_data = fetch_real_time_data(stock_symbol)
+        if intraday_data is not None:
+            timestamps, closing_prices = process_stock_data(intraday_data)
             if closing_prices:
                 current_price = closing_prices[-1]
-                # Calcula los algoritmos de predicción
                 prediction_lineal = predict_with_regression(timestamps, closing_prices)
                 prediction_polynomial = predict_with_polynomial_regression(timestamps, closing_prices)
                 prediction_forest = predict_with_forest_regressor(timestamps, closing_prices)
+
+        # Datos mensuales
+        monthly_data = fetch_monthly_data(stock_symbol)
+        if monthly_data is not None:
+            timestamps_monthly = list(monthly_data.index.strftime("%Y-%m-%d"))
+            closing_prices_monthly = list(monthly_data["Close"].dropna())
 
     return render_template(
         'index.html',
@@ -44,5 +49,7 @@ def index():
         prediction_forest=prediction_forest,
         timestamps=timestamps,
         closing_prices=closing_prices,
+        timestamps_monthly=timestamps_monthly,
+        closing_prices_monthly=closing_prices_monthly,
         algorithm=algorithm
     )

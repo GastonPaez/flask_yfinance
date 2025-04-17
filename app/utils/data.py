@@ -19,3 +19,15 @@ def process_stock_data(data):
     except KeyError as e:
         print("Error procesando datos:", e)
         return [], []
+    
+def fetch_monthly_data(stock_symbol):
+    try:
+        stock = yf.Ticker(stock_symbol)
+        history = stock.history(period="1mo", interval="1d")  # Últimos 30 días
+        if not history.empty:
+            print(f"Datos mensuales obtenidos para {stock_symbol}")
+            return history
+    except Exception as e:
+        print(f"Error obteniendo datos mensuales de {stock_symbol}: {str(e)}")
+    return None
+    

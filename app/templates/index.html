@@ -25,8 +25,8 @@
         </div>
 
         <div class="text-center">
-            <span class="sub-heading">App para buscar activo financiero y obtener una sugerencia de compra o
-                venta.</span>
+            <span class="sub-heading">App para buscar un activo financiero y obtener una sugerencia de compra o venta.
+            </span>            
         </div>
         <!--  BUSCADOR  -->
         <form method="post">
@@ -86,8 +86,19 @@
 
         
 
-        <!--  GRAFICO ACCION  -->
-        <canvas id="priceChart"></canvas>
+        <!--  GRAFICOS -->
+<div class="row mx-2">
+    <div class="col-md-6 mb-4">
+        <div class="chart-bg p-1">            
+            <canvas id="priceChart"></canvas>
+        </div>
+    </div>
+    <div class="col-md-6 mb-4">
+        <div class="chart-bg p-1">            
+            <canvas id="monthlyChart"></canvas>
+        </div>
+    </div>
+</div>
 
         <script>
             // Valores calculados enviados desde Flask
@@ -126,29 +137,73 @@
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script>
             const ctx = document.getElementById('priceChart').getContext('2d');
-            const chart = new Chart(ctx, {
+            new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: {{ timestamps | tojson }},
-            datasets: [{
-                label: 'Precio de Cierre',
-                data: {{ closing_prices | tojson }},
-                borderColor: 'blue',
-                backgroundColor: 'rgba(0, 123, 255, 0.5)',
-                borderWidth: 2
-                }]
-            },
-            options: {
-                responsive: true,
-                    plugins: {
-                    legend: { display: true }
+                    datasets: [{
+                        label: 'Precio del Diario',
+                        data: {{ closing_prices | tojson }},
+                        borderColor: 'blue',
+                        backgroundColor: 'rgba(0, 123, 255, 0.5)',
+                        borderWidth: 2
+                    }]
                 },
-                scales: {
-                    x: { title: { display: true, text: 'Tiempo' } },
-                    y: { title: { display: true, text: 'Precio ($)' } }
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: true }},
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'Hora' },
+                            ticks: {
+                                callback: function(value, index, ticks) {
+                                    const label = this.getLabelForValue(value);
+                                    return label.split(' ')[1]; // Extrae solo la parte 'HH:MM'
+                                }
+                            }
+                        },
+                        y: {
+                            title: { display: true, text: 'Precio ($)' }
+                        }
+                    }
                 }
-            }
-        });
+            });
+        
+            const ctxMonthly = document.getElementById('monthlyChart').getContext('2d');
+            new Chart(ctxMonthly, {
+                type: 'line',
+                data: {
+                    labels: {{ timestamps_monthly | tojson }},
+                    datasets: [{
+                        label: 'Precio Mensual',
+                        data: {{ closing_prices_monthly | tojson }},
+                        borderColor: 'green',
+                        backgroundColor: 'rgba(40, 167, 69, 0.3)',
+                        borderWidth: 2,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: true }},
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'Fecha' },
+                            ticks: {
+                                callback: function(value, index, ticks) {
+                                    const label = this.getLabelForValue(value);
+                                    const datePart = label.split(' ')[0]; // "YYYY-MM-DD"
+                                    const [year, month, day] = datePart.split('-');
+                                    return `${day}-${month}`; // Devuelve "DD-MM"
+                                }
+                            }
+                        },
+                        y: {
+                            title: { display: true, text: 'Precio ($)' }
+                        }
+                    }
+                }
+            });
         </script>
         {% endif %}
 </body>

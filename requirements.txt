@@ -3,3 +3,4 @@ yfinance==0.2.55
 scikit-learn==1.6.1
 chart.js
 charset-normalizer==3.3.2
+gunicorn==20.1.0

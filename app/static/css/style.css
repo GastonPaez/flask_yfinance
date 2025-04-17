@@ -105,7 +105,39 @@ i.filter-icon {
 
 span.filter-active {
     color: #fff0ff;
-    border: 3px solid #ce2eff;
+    border: 3px solid #ce2eff;    
+    position: relative;
+    transition: all 0.3s ease;
+    font-weight: 900;
+}
+span.filter-active::after {
+    content: "";
+    position: absolute;
+    bottom: -5px;
+    left: 10%;
+    width: 80%;
+    height: 2px;
+    background: #ce2eff;  
+    border-radius: 2px;
+    animation: fadeSlideIn 0.4s ease-out forwards;
+    opacity: 0;
+}
+span.filter-active:hover::after {
+    opacity: 1;
+}
+
+/* Animación */
+@keyframes fadeSlideIn {
+    0% {
+        width: 0;
+        opacity: 0;
+        left: 50%;
+    }
+    100% {
+        width: 80%;
+        opacity: 1;
+        left: 10%;
+    }
 }
 
 span.expense-label {

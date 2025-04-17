@@ -10,7 +10,7 @@ body {
 
 .container {
     width: 100vh;
-    height: 75vh;
+    height: auto;
     background: #1c253f;
     border-radius: 40px;
     margin-top: 10px;
@@ -72,6 +72,10 @@ span.active {
 }
 
 span.filter {
+    border: 3px solid #ce2eff79;
+    border-radius: 10px;
+    color: #fff0ff;
+    margin: 5px;
     border-radius: 10px;
     background: #162037;
     color: #585F8B;
@@ -98,6 +102,7 @@ i.filter-icon {
 
 span.filter-active {
     color: #fff0ff;
+    border: 3px solid #ce2eff;
 }
 
 span.expense-label {
@@ -121,9 +126,15 @@ span.expense {
     color: #FFF0FF;
     font-weight: 700;
     letter-spacing: 3px;
-    font-size: 34px;
+    font-size: 1.5rem;
 }
+span.expense-name{
+    color: #FFF0FF;
+    font-weight: 700;
+    letter-spacing: 3px;
+    font-size: 1rem;
 
+}
 div.bar-1 {
     bottom: 0;
     width: 20px;
@@ -146,4 +157,17 @@ span.chart-label {
 div.chart-bg {
     background: #162037;
     border-radius: 25px;
+}
+
+.full-width {
+    width: 100%;
+    display: block;
+    text-align: center;
+    padding: 10px 0;
+    color: #585F8B;
+    font-weight: 900;
+    font-size: 12px;
+    letter-spacing: 1px;
+    background: #162037;
+    border-radius: 10px;
 }

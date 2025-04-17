@@ -1,93 +1,101 @@
-import os
 from flask import Flask, render_template, request
-import requests
+import yfinance as yf
 import numpy as np
 from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.ensemble import RandomForestRegressor
 
 app = Flask(__name__)
 
 @app.route('/', methods=["GET", "POST"])
 def index():
-    prediction = None
+    prediction_lineal = None
+    prediction_polynomial = None
+    prediction_forest = None
     current_price = None
-    predicted_price = None
     timestamps = []
     closing_prices = []
+    algorithm = "Regresión Lineal"  # Algoritmo predeterminado
+    stock_symbol = None
 
     if request.method == "POST":
-        stock_symbol = request.form['stock_symbol']
-        
-        # Obtener datos históricos y procesarlos
-        response = fetch_real_time_data(stock_symbol)    
-        print("Information" in response)    
-        print(type(response))
-        if "Information" in response:
-            error = "API rate limit per day"
-            timestamps, closing_prices, current_price, predicted_price, prediction = error, error, 0, 0, "Waiting"
-            print("error api")
-        
-        else:
-            if response:
-                print("entro al if")
-                timestamps, closing_prices = process_stock_data(response)
-                current_price = closing_prices[-1]  # Último precio de cierre
-                predicted_price = predict_with_regression(timestamps, closing_prices)  # Predicción basada en regresión
-                prediction = 'Buy' if predicted_price > current_price else 'Sell'
+        stock_symbol = request.form['stock_symbol'].upper()  # Captura el código de acción
+
+        # Obtiene los datos del mercado
+        response = fetch_real_time_data(stock_symbol)
+
+        if response is not None:
+            print("Procesando datos...")
+            timestamps, closing_prices = process_stock_data(response)
+            if closing_prices:
+                current_price = closing_prices[-1]
+                # Calcula todos los algoritmos al buscar
+                prediction_lineal = predict_with_regression(timestamps, closing_prices)
+                prediction_polynomial = predict_with_polynomial_regression(timestamps, closing_prices)
+                prediction_forest = predict_with_forest_regressor(timestamps, closing_prices)
 
     return render_template(
         'index.html',
-        prediction=prediction,
+        symbol=stock_symbol,
         current_price=current_price,
-        predicted_price=predicted_price,
+        prediction_lineal=prediction_lineal,
+        prediction_polynomial=prediction_polynomial,
+        prediction_forest=prediction_forest,
         timestamps=timestamps,
-        closing_prices=closing_prices
+        closing_prices=closing_prices,
+        algorithm=algorithm
     )
-    
-def fetch_real_time_data(stock_symbol):
-    url = f'https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol={stock_symbol}&interval=5min&apikey=RB4FK71JRVS10X15'
-    try:
-        response = requests.get(url)
-        response.raise_for_status()
-        return response.json()
-    except requests.exceptions.RequestException as e:
-        print('Error fetching data:', e)
-        return None
 
+# Función para obtener datos de yfinance
+def fetch_real_time_data(stock_symbol):
+    try:
+        stock = yf.Ticker(stock_symbol)
+        history = stock.history(period="1d", interval="5m")  # Datos intradía
+        if not history.empty:
+            print(f"Datos obtenidos correctamente para {stock_symbol}")
+            return history
+    except Exception as e:
+        print(f"Error obteniendo datos de {stock_symbol}: {str(e)}")
+    return None
+
+# Procesamiento de datos
 def process_stock_data(data):
     try:
-        time_series = data["Time Series (5min)"]
-        timestamps = list(time_series.keys())[:10]  # Últimos 10 registros
-        timestamps.reverse()  # Orden cronológico
-        closing_prices = [float(time_series[time]["4. close"]) for time in timestamps]
+        timestamps = list(data.index.strftime("%Y-%m-%d %H:%M"))[-10:]  # Últimos 10 registros
+        closing_prices = list(data["Close"].dropna())[-10:]  # Últimos 10 precios de cierre
         return timestamps, closing_prices
     except KeyError as e:
-        print("Error processing data:", e)
+        print("Error procesando datos:", e)
         return [], []
 
+# Funciones de predicción
 def predict_with_regression(timestamps, closing_prices):
-    """ El código toma los precios de cierre de las últimas 10 observaciones y los convierte en dos conjuntos:
-    X: Representa el tiempo como índices numéricos. Por ejemplo, si tienes 10 datos, los índices serán [0, 1, 2, ... 9].
-    y: Son los precios de cierre reales correspondientes a esos momentos de tiempo.
-    
-    Estos datos son los que el modelo utiliza para identificar patrones.
-    
-    Args:
-        timestamps (datetime): fecha y hora
-        closing_prices (float): precio de cierre
-
-    Returns:
-        float: prediccion
-    """
-    # Convertir timestamps en valores numéricos (ej. [0, 1, 2, ...])
     X = np.array(range(len(timestamps))).reshape(-1, 1)
     y = np.array(closing_prices)
-
-    # Entrenar modelo de regresión lineal
     model = LinearRegression()
     model.fit(X, y)
+    next_time = np.array([[len(timestamps)]])
+    predicted_price = model.predict(next_time)
+    return predicted_price[0]
 
-    # Predecir el próximo precio (siguiente paso en el tiempo)
-    next_time = np.array([[len(timestamps)]])  # Puntero al siguiente índice
+def predict_with_polynomial_regression(timestamps, closing_prices):
+    X = np.array(range(len(timestamps))).reshape(-1, 1)
+    y = np.array(closing_prices)
+    poly = PolynomialFeatures(degree=2)
+    X_poly = poly.fit_transform(X)
+    model = LinearRegression()
+    model.fit(X_poly, y)
+    next_time = np.array([[len(timestamps)]])
+    next_time_poly = poly.transform(next_time)
+    predicted_price = model.predict(next_time_poly)
+    return predicted_price[0]
+
+def predict_with_forest_regressor(timestamps, closing_prices):
+    X = np.array(range(len(timestamps))).reshape(-1, 1)
+    y = np.array(closing_prices)
+    model = RandomForestRegressor(n_estimators=100, random_state=42)
+    model.fit(X, y)
+    next_time = np.array([[len(timestamps)]])
     predicted_price = model.predict(next_time)
     return predicted_price[0]
 

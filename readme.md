@@ -87,7 +87,4 @@ Esta aplicación web permite obtener predicciones de precios de acciones utiliza
 3. A continuación, obtendrás una **sugerencia de compra/venta** basada en la comparación entre el precio actual y el precio predicho.
 4. Un gráfico interactivo mostrará la evolución histórica de los precios de la acción.
 
-## Estructura del proyecto
-
-El proyecto está organizado de la siguiente manera:
 

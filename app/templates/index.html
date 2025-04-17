@@ -16,8 +16,6 @@
 <body>
     <div class="container">
         <div class="pt-5 px-2 d-flex flex-row justify-content-between">
-            <!-- <i class="fas fa-arrow-left nav-icon"></i> -->
-            <!-- <i class="far fa-bell nav-icon position-relative"> -->
             <div class="dot position-absolute"></div>
             </i>
         </div>
@@ -30,7 +28,7 @@
             <span class="sub-heading">App para buscar activo financiero y obtener una sugerencia de compra o
                 venta.</span>
         </div>
-        <!-- ||||||||||| BUSCADOR |||||||||| -->
+        <!--  BUSCADOR  -->
         <form method="post">
             <div class="d-flex flex-row menu mt-5 mx-2 justify-content-between align-items-center p-2">
                 <span class="px-4 py-2">Ingresa Código de Acción</span>
@@ -41,7 +39,7 @@
         </form>
 
         {% if current_price is not none %}
-        <!-- ||||||||||| PRECIO ACCIONES |||||||||| -->
+        <!--  PRECIO ACCIONES  -->
         <div class="d-flex flex-column chart-bg mx-2 mt-3 mb-3">
             <div class="d-flex flex-row justify-content-between align-items-center p-4">
                 <p><span class="expense-name col-2">Acción:</span>
@@ -53,7 +51,7 @@
             </div>
         </div>
 
-        <!-- ||||||||||| SELECCION ALGORITMO |||||||||| -->
+        <!--  SELECCION ALGORITMO  -->
         <div class="d-flex flex-column chart-bg mx-2 mt-3 mb-3">
             <div class="menu mt-2 mx-2 pt-1 pb-2">
                 <div class="">
@@ -70,7 +68,7 @@
             </div>
         </div>
 
-        <!-- ||||||||||| PRECIO PREDICCION |||||||||| -->
+        <!--  PRECIO PREDICCION  -->
         <div class="d-flex flex-column chart-bg mx-2 mt-2 mb-2">
             <div class="d-flex flex-row justify-content-between align-items-center p-4">
                 <p>
@@ -88,7 +86,7 @@
 
         
 
-        <!-- ||||||||||| GRAFICO ACCION |||||||||| -->
+        <!--  GRAFICO ACCION  -->
         <canvas id="priceChart"></canvas>
 
         <script>

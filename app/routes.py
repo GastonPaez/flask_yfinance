@@ -6,7 +6,7 @@ from app.services.prediction import (
 )
 from app.utils.data import fetch_real_time_data, process_stock_data
 
-main = Blueprint('main', __name__)  # Cambiar 'routes' a 'main'
+main = Blueprint('main', __name__)
 
 @main.route('/', methods=["GET", "POST"])
 def index():

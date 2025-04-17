@@ -12,7 +12,7 @@ body {
 
 .container {
     width: 100%;
-    max-width: 800px; /* o el ancho máximo que quieras para desktop */
+    max-width: 800px;
     background: #1c253f;
     border-radius: 40px;
     margin: 20px auto;
